@@ -1,0 +1,2 @@
+# SlotSpecial-StinkinRich
+StinkinRich
