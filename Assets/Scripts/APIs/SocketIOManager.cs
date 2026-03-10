@@ -20,7 +20,6 @@ public class SocketIOManager : MonoBehaviour
   protected string nameSpace = "playground";
   internal GameData initialData = null;
   internal UiData initUIData = null;
-  internal GameData resultData = null;
   internal Root ResultData = null;
   internal Player playerdata = null;
   internal List<List<int>> LineData = null;
@@ -35,7 +34,7 @@ public class SocketIOManager : MonoBehaviour
   //protected string TestSocketURI = "https://7p68wzhv-5000.inc1.devtunnels.ms/";
   //protected string TestSocketURI = "https://6f01c04j-5000.inc1.devtunnels.ms/";
   //protected string TestSocketURI = "https://c4xfw9cd-5002.inc1.devtunnels.ms/";
-  protected string TestSocketURI = "http://localhost:5000/";
+  protected string TestSocketURI = "https://devrealtime.dingdinghouse.com/";
 
   [SerializeField]
   private string testToken;
@@ -225,12 +224,12 @@ public class SocketIOManager : MonoBehaviour
 
   private void OnPongReceived(string data) //Back2 Start
   {
-    Debug.Log("✅ Received pong from server.");
+    // Debug.Log("✅ Received pong from server.");
     waitingForPong = false;
     missedPongs = 0;
     lastPongTime = Time.time;
-    Debug.Log($"⏱️ Updated last pong time: {lastPongTime}");
-    Debug.Log($"📦 Pong payload: {data}");
+    // Debug.Log($"⏱️ Updated last pong time: {lastPongTime}");
+    // Debug.Log($"📦 Pong payload: {data}");
   } //Back2 end
 
 
@@ -298,7 +297,7 @@ public class SocketIOManager : MonoBehaviour
   {
     while (true)
     {
-      Debug.Log($"🟡 PingCheck | waitingForPong: {waitingForPong}, missedPongs: {missedPongs}, timeSinceLastPong: {Time.time - lastPongTime}");
+      // Debug.Log($"🟡 PingCheck | waitingForPong: {waitingForPong}, missedPongs: {missedPongs}, timeSinceLastPong: {Time.time - lastPongTime}");
 
       if (missedPongs == 0)
       {
@@ -327,7 +326,7 @@ public class SocketIOManager : MonoBehaviour
       // Send next ping
       waitingForPong = true;
       lastPongTime = Time.time;
-      Debug.Log("📤 Sending ping...");
+      // Debug.Log("📤 Sending ping...");
       SendDataWithNamespace("ping");
       yield return new WaitForSeconds(pingInterval);
     }

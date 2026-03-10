@@ -71,6 +71,7 @@ public class UIManager : MonoBehaviour
     private Sprite HugeWin_Sprite;
     [SerializeField]
     private Sprite MegaWin_Sprite;
+    [SerializeField] private Sprite ScatterWin_Sprite;
     [SerializeField]
     private Image Win_Image;
     [SerializeField]
@@ -416,6 +417,9 @@ public class UIManager : MonoBehaviour
             case 3:
                 if (Win_Image) Win_Image.sprite = MegaWin_Sprite;
                 break;
+            case 4:
+                if (Win_Image) Win_Image.sprite = ScatterWin_Sprite;
+                break;
         }
 
         StartPopupAnim(amount);
@@ -604,12 +608,12 @@ public class UIManager : MonoBehaviour
         if (WinPopup_Object) WinPopup_Object.SetActive(true);
         if (MainPopup_Object) MainPopup_Object.SetActive(true);
 
-        DOTween.To(() => initAmount, (val) => initAmount = val, amount, 5f).OnUpdate(() =>
+        DOTween.To(() => initAmount, (val) => initAmount = val, amount, 4f).OnUpdate(() =>
         {
             if (Win_Text) Win_Text.text = initAmount.ToString("f3");
         });
 
-        ClosePopupTween = DOVirtual.DelayedCall(6f, () =>
+        ClosePopupTween = DOVirtual.DelayedCall(5f, () =>
         {
             ClosePopup(WinPopup_Object);
             slotManager.CheckPopups = false;
