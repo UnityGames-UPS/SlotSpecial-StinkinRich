@@ -394,7 +394,7 @@ public class SocketIOManager : MonoBehaviour
 
   private void ParseResponse(string jsonObject)
   {
-    Debug.Log(jsonObject);
+    //    Debug.Log(jsonObject);
     Root myData = JsonConvert.DeserializeObject<Root>(jsonObject);
 
     string id = myData.id;

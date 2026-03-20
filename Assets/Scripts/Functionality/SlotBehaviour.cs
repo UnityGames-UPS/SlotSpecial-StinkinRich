@@ -164,6 +164,8 @@ public class SlotBehaviour : MonoBehaviour
   private int FreeSpinCounter = 0;
   private double currentBalance = 0;
   private double currentTotalBet = 0;
+  private bool IsStoppingAutoSpin = false;
+  bool IsFreeSpinTriggered;
   protected int Lines = 20;
   [SerializeField]
   private int IconSizeFactor = 100;       //set this parameter according to the size of the icon and spacing
@@ -280,32 +282,75 @@ public class SlotBehaviour : MonoBehaviour
     audioController.PlayButtonAudio();
     if (IsAutoSpin)
     {
+      IsStoppingAutoSpin = true;
       IsAutoSpin = false;
       if (AutoSpinStop_Button) AutoSpinStop_Button.gameObject.SetActive(false);
       if (AutoSpin_Button) AutoSpin_Button.gameObject.SetActive(true);
       StartCoroutine(StopAutoSpinCoroutine());
     }
   }
-
-
   private IEnumerator StopAutoSpinCoroutine()
   {
+    Debug.Log("StopAutoSpinCoroutine started - waiting for spin to finish");
     WasAutoSpinOn = false;
     yield return new WaitUntil(() => !IsSpinning);
+    Debug.Log("StopAutoSpinCoroutine - spin finished");
+
+    // Check if free spin was triggered
+    if (IsFreeSpin)
+    {
+      Debug.Log("StopAutoSpinCoroutine - free spin triggered, waiting for free spin to complete");
+
+      // Wait for free spin mode to end
+      yield return new WaitUntil(() => !IsFreeSpin);
+      Debug.Log("StopAutoSpinCoroutine - free spin completed");
+
+      // Small delay for cleanup
+      yield return new WaitForSeconds(0.5f);
+    }
+    yield return new WaitUntil(() => !IsSpinning);
+
+    if (IsFreeSpinTriggered)
+    {
+      yield return new WaitUntil(() => IsFreeSpin); // wait till it actually starts
+      yield return new WaitUntil(() => !IsFreeSpin);
+    }
+    // Now clean up
     ToggleButtonGrp(true);
+
     if (AutoSpinRoutine != null)
     {
       StopCoroutine(AutoSpinRoutine);
       AutoSpinRoutine = null;
-
     }
+
     if (tweenroutine != null)
     {
       StopCoroutine(tweenroutine);
       tweenroutine = null;
     }
 
+    IsStoppingAutoSpin = false;
   }
+
+  // private IEnumerator StopAutoSpinCoroutine()
+  // {
+  //   WasAutoSpinOn = false;
+  //   yield return new WaitUntil(() => !IsSpinning);
+  //   ToggleButtonGrp(true);
+  //   if (AutoSpinRoutine != null)
+  //   {
+  //     StopCoroutine(AutoSpinRoutine);
+  //     AutoSpinRoutine = null;
+
+  //   }
+  //   if (tweenroutine != null)
+  //   {
+  //     StopCoroutine(tweenroutine);
+  //     tweenroutine = null;
+  //   }
+
+  // }
 
   internal void FreeSpin(int spins)
   {
@@ -323,6 +368,7 @@ public class SlotBehaviour : MonoBehaviour
         StopCoroutine(FreeSpinRoutine);
         FreeSpinRoutine = null;
       }
+      ToggleButtonGrp(false);
       FreeSpinRoutine = StartCoroutine(FreeSpinCoroutine(spins));
     }
   }
@@ -941,21 +987,39 @@ public class SlotBehaviour : MonoBehaviour
       // yield return new WaitForSeconds(2f);
       IsSpinning = false;
     }
-
+    IsFreeSpinTriggered = SocketManager.ResultData.features.freeSpin.isFreeSpin;
     if (SocketManager.ResultData.features.freeSpin.isFreeSpin)
     {
-      Debug.Log($"################## free spin inside 0");
+      Debug.Log($"################## free spin inside ");
       FreeSpinCounter = (int)SocketManager.ResultData.features.freeSpin.count;
-      if (IsAutoSpin)
+
+      // Only remember AutoSpin if it was on AND we're not manually stopping it
+      if (IsAutoSpin && !IsStoppingAutoSpin)
       {
         WasAutoSpinOn = true;
-        IsAutoSpin = false;
-        // if (AutoSpinStop_Button) AutoSpinStop_Button.gameObject.SetActive(false);
-        if (AutoSpinRoutine != null)
-        {
-          StopCoroutine(AutoSpinRoutine);
-        }
       }
+
+      IsAutoSpin = false;
+      if (AutoSpinStop_Button) AutoSpinStop_Button.gameObject.SetActive(false);
+      if (AutoSpinRoutine != null)
+      {
+        StopCoroutine(AutoSpinRoutine);
+        AutoSpinRoutine = null;
+      }
+      // if (SocketManager.ResultData.features.freeSpin.isFreeSpin)
+      // {
+      //   Debug.Log($"################## free spin inside ");
+      //   FreeSpinCounter = (int)SocketManager.ResultData.features.freeSpin.count;
+      //   if (IsAutoSpin)
+      //   {
+      //     WasAutoSpinOn = true;
+      //     IsAutoSpin = false;
+      //     // if (AutoSpinStop_Button) AutoSpinStop_Button.gameObject.SetActive(false);
+      //     if (AutoSpinRoutine != null)
+      //     {
+      //       StopCoroutine(AutoSpinRoutine);
+      //     }
+      //   }
 
       // if (IsFreeSpin)
       // {
@@ -972,18 +1036,25 @@ public class SlotBehaviour : MonoBehaviour
       // {
       Debug.Log($"################## free spin inside 2");
       shuffleInitialMatrixKTR();
+      Debug.Log($"################## free spin inside 3");
       if (uiManager) uiManager.ToggleBonusRText(true);
       if (audioController) audioController.SwitchBGSound(true);
       if (KTRStart_Button) KTRStart_Button.gameObject.SetActive(false);
       if (uiManager) uiManager.ToggleBonusRText(false);
+      Debug.Log($"################## free spin inside 4");
       uiManager.FreeSpinProcessStart(FreeSpinCounter, currentTotalBet, true);
       PayCalculator.ResetLines();
+      Debug.Log($"################## free spin inside 5");
       StopGameAnimation();
+      Debug.Log($"################## free spin inside 6" + uiManager.FSPopUpActive);
+      ToggleButtonGrp(false);
       //}
       yield return new WaitUntil(() => !uiManager.FSPopUpActive);
+      Debug.Log($"################## free spin inside 7");
       yield return new WaitForSeconds(0.5f);
-
+      Debug.Log($"################## free spin inside 8");
       FreeSpin(FreeSpinCounter);
+      Debug.Log($"################## free spin inside 9");
     }
 
     //commnet 2

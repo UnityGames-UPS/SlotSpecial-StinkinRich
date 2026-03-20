@@ -428,7 +428,7 @@ public class UIManager : MonoBehaviour
 
     internal void FreeSpinProcessStart(int spins, double totalbet, bool isUpdate = false)
     {
-        FSPopUpActive = true;
+        // FSPopUpActive = true;
         int ExtraSpins = spins - FreeSpins;
         FreeSpins = spins;
         if (isUpdate)
@@ -488,7 +488,7 @@ public class UIManager : MonoBehaviour
         if (FSNum_Text) FSNum_Text.DOFade(1f, 1f);
         DOVirtual.DelayedCall(2.5f, () =>
         {
-        isFreeSpinPopupActive = false;
+            isFreeSpinPopupActive = false;
         });
 
 
@@ -520,47 +520,105 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // private IEnumerator ShowPopupProcess(int freeSpins, bool isBegin)
+    // {
+    //     float time = 3f;
+    //     FSPopUpActive = true;
+    //     isFreeSpinPopupActive = true;
+    //     if (isBegin)
+    //     {
+    //         time = 5f;
+    //     }
+    //     if (!isBegin)
+    //         FS_Text.text = $"You have been awarded with extra <size=100><color=green>{freeSpins}</color></size> free spins.";
+    //     else
+    //         FS_Text.text = $"You have been awarded with <size=100><color=green>{freeSpins}</color></size> free spins.";
+
+    //     if (FS_Image) FS_Image.color = FS_Image.color = new Color(FS_Image.color.r, FS_Image.color.g, FS_Image.color.b, 1f);
+    //     if (FSTitle_Image) FSTitle_Image.color = FSTitle_Image.color = new Color(FSTitle_Image.color.r, FSTitle_Image.color.g, FSTitle_Image.color.b, 1f);
+    //     if (FS_Text) FS_Text.color = FS_Text.color = new Color(FS_Text.color.r, FS_Text.color.g, FS_Text.color.b, 1f);
+    //     if (MainPopup_Object) MainPopup_Object.SetActive(true);
+    //     if (FreeSpinPopup_Object) FreeSpinPopup_Object.SetActive(true);
+    //     // DOVirtual.DelayedCall(time, () =>
+    //     // {
+    //     //     isFreeSpinPopupActive = false;
+    //     //     FSPopUpActive = false;
+    //     // });
+    //     float elapsedTime = 0f;
+    //     while (elapsedTime < time)
+    //     {
+    //         elapsedTime += Time.deltaTime;
+    //         yield return null;
+    //     }
+
+    //     // This will ALWAYS execute
+    //     Debug.Log("ShowPopupProcess - timer finished, setting flags to false");
+    //     isFreeSpinPopupActive = false;
+    //     FSPopUpActive = false;
+
+
+    //     yield return new WaitUntil(() => !isFreeSpinPopupActive);
+    //     // DOVirtual.DelayedCall(time, () =>
+    //     // {
+    //     if (FS_Image) FS_Image.DOFade(0f, 1f).OnComplete(delegate
+    //     {
+    //         if (MainPopup_Object) MainPopup_Object.SetActive(false);
+    //         if (FreeSpinPopup_Object) FreeSpinPopup_Object.SetActive(false);
+    //     });
+    //     if (FSTitle_Image) FSTitle_Image.DOFade(0f, 1f);
+    //     if (FS_Text) FS_Text.DOFade(0f, 1f).OnComplete(() =>
+    //     {
+    //         FSPopUpActive = false;
+    //     });
+
+    //     // slotManager.FreeSpin(freeSpins);
+
+    //     // });
+    // }
     private IEnumerator ShowPopupProcess(int freeSpins, bool isBegin)
     {
-        float time = 3f;
+        float time = isBegin ? 5f : 3f;
+
+        // Set flags when popup OPENS
+        FSPopUpActive = true;
         isFreeSpinPopupActive = true;
-        if (isBegin)
-        {
-            time = 5f;
-        }
+
+        // Set text
         if (!isBegin)
             FS_Text.text = $"You have been awarded with extra <size=100><color=green>{freeSpins}</color></size> free spins.";
         else
             FS_Text.text = $"You have been awarded with <size=100><color=green>{freeSpins}</color></size> free spins.";
 
-        if (FS_Image) FS_Image.color = FS_Image.color = new Color(FS_Image.color.r, FS_Image.color.g, FS_Image.color.b, 1f);
-        if (FSTitle_Image) FSTitle_Image.color = FSTitle_Image.color = new Color(FSTitle_Image.color.r, FSTitle_Image.color.g, FSTitle_Image.color.b, 1f);
-        if (FS_Text) FS_Text.color = FS_Text.color = new Color(FS_Text.color.r, FS_Text.color.g, FS_Text.color.b, 1f);
+        // Show popup
+        if (FS_Image) FS_Image.color = new Color(FS_Image.color.r, FS_Image.color.g, FS_Image.color.b, 1f);
+        if (FSTitle_Image) FSTitle_Image.color = new Color(FSTitle_Image.color.r, FSTitle_Image.color.g, FSTitle_Image.color.b, 1f);
+        if (FS_Text) FS_Text.color = new Color(FS_Text.color.r, FS_Text.color.g, FS_Text.color.b, 1f);
         if (MainPopup_Object) MainPopup_Object.SetActive(true);
         if (FreeSpinPopup_Object) FreeSpinPopup_Object.SetActive(true);
-        DOVirtual.DelayedCall(time, () =>
-        {
-            isFreeSpinPopupActive = false;
-        });
-        yield return new WaitUntil(() => !isFreeSpinPopupActive);
-        // DOVirtual.DelayedCall(time, () =>
-        // {
-        if (FS_Image) FS_Image.DOFade(0f, 1f).OnComplete(delegate
-        {
-            if (MainPopup_Object) MainPopup_Object.SetActive(false);
-            if (FreeSpinPopup_Object) FreeSpinPopup_Object.SetActive(false);
-        });
+
+        // Wait for display time
+        yield return new WaitForSeconds(time);
+
+        Debug.Log("ShowPopupProcess - starting fade out");
+
+        // Fade out
+        if (FS_Image) FS_Image.DOFade(0f, 1f);
         if (FSTitle_Image) FSTitle_Image.DOFade(0f, 1f);
-        if (FS_Text) FS_Text.DOFade(0f, 1f).OnComplete(() =>
-        {
-            FSPopUpActive = false;
-        });
+        if (FS_Text) FS_Text.DOFade(0f, 1f);
 
-        // slotManager.FreeSpin(freeSpins);
+        // Wait for fade to complete
+        yield return new WaitForSeconds(1f);
 
-        // });
+        // Hide popup objects
+        if (MainPopup_Object) MainPopup_Object.SetActive(false);
+        if (FreeSpinPopup_Object) FreeSpinPopup_Object.SetActive(false);
+
+        // ONLY NOW set flags to false - after popup is completely hidden
+        isFreeSpinPopupActive = false;
+        FSPopUpActive = false;
+
+        Debug.Log("ShowPopupProcess - popup fully closed");
     }
-
     private void ToggleKTR(bool isActive)
     {
         if (audioController) audioController.PlayBonusAudio("vault");
