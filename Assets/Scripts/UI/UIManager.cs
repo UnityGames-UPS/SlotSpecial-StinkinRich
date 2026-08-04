@@ -207,6 +207,9 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private SocketIOManager socketManager;
 
+    [SerializeField]
+    private JSFunctCalls jsFunctCalls;
+
     private bool isMusic = true;
     private bool isSound = true;
     private bool isExit = false;
@@ -224,6 +227,16 @@ public class UIManager : MonoBehaviour
     {
         //if (Loading_Object) Loading_Object.SetActive(true);
         //StartCoroutine(LoadingRoutine());
+        if (jsFunctCalls != null)
+            jsFunctCalls.RegisterVisibilityListener(gameObject.name);
+    }
+
+    public void OnFocusChanged(string value)
+    {
+        bool focused = value == "1";
+        Debug.Log("UNITY FOCUS CHANGED: " + value + " (focused: " + focused + ")");
+        audioController?.SetMuteAll(!focused);
+        socketManager?.HandleFocusChange(focused);
     }
 
     private IEnumerator LoadingRoutine()
